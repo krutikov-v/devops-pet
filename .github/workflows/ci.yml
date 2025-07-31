@@ -29,6 +29,6 @@ jobs:
 
       - name: Проверка запуска Flask и ответа 
         run: |
-          python nasa-project/backend/app.py &
+          timeout 10s python nasa-project/backend/app.py &
           sleep 3
-          curl -f http://localhost:5000/ping
+          curl -f http://localhost:5000/api/health
