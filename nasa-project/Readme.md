@@ -25,18 +25,20 @@
 ```bash
 git clone https://github.com/krutikov-v/devops-pet.git
 cd devops-pet
+```
 
 2. Запустите контейнеры:
+```bash
 docker compose up --build
-
-3. Откройте в браузере:
+```
+4. Откройте в браузере:
 
 Frontend: http://localhost:8080
 
 Backend API: http://localhost:5000
 
 Структура проекта
-
+```bash
 nasa-project/
 ├── backend/
 │   ├── app.py               # Основной код API
@@ -47,6 +49,8 @@ nasa-project/
 │   └── Dockerfile
 ├── docker-compose.yml       # Сборка и запуск двух сервисов
 └── README.md
+```
+
 Что планируется дальше
 ✅ Автоматизация через GitHub Actions (CI/CD)
 
