@@ -26,6 +26,7 @@ jobs:
         run: |
           python nasa-project/backend/app.py &
           sleep 3
+
       - name: Проверка запуска Flask и ответа 
       - run: |
           python nasa-project/backend/app.py &
