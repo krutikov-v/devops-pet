@@ -1,0 +1,32 @@
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Logs
+*.log
+
+# Environment
+.env
+.venv/
+venv/
+env/
+
+# VSCode / PyCharm
+.vscode/
+.idea/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Docker
+*.pid
+*.sock
+
+# Python dependency lock
+Pipfile.lock
+poetry.lock
+
+# Git credentials (если используешь)
+.git-credentials
