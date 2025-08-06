@@ -38,6 +38,6 @@ jobs:
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
-            cd nasa-project
+            cd /home/ubuntu/devops-pet/nasa-project
             git pull
             docker compose up --build -d

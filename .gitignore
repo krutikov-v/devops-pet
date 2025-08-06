@@ -30,3 +30,5 @@ poetry.lock
 
 # Git credentials (если используешь)
 .git-credentials
+
+*.pem
