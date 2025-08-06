@@ -1,9 +1,64 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-  <title>NASA Flask App</title>
+  <meta charset="utf-8">
+  <title>NASA APOD</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; line-height:1.5; }
+    img, video { max-width: 100%; height: auto; display: block; margin: 1rem 0; }
+    .error { color: #b00; }
+    .meta { color: #555; font-size: 0.9rem; }
+    .container { max-width: 900px; margin: 0 auto; }
+  </style>
 </head>
 <body>
-  <h1>Hello from Frontend</h1>
+  <div class="container">
+    <h1>NASA Astronomy Picture of the Day</h1>
+    <div id="content">Loading…</div>
+  </div>
+
+  <script>
+    async function loadAPOD() {
+      const el = document.getElementById('content');
+      try {
+        const res = await fetch('/api/apod'); // тот же домен, проксируется nginx -> backend:5000
+        if (!res.ok) throw new Error('API error: ' + res.status);
+        const data = await res.json();
+
+        // Базовые поля
+        const title = data.title || 'No title';
+        const date = data.date || '';
+        const explanation = data.explanation || 'No description available';
+        const mediaType = data.media_type;
+
+        // Рендер
+        let mediaHtml = '';
+        if (mediaType === 'image' && data.url) {
+          mediaHtml = `<img src="${data.url}" alt="${title}">`;
+        } else if (mediaType === 'video' && data.url) {
+          // Если видео (например, YouTube) — даём ссылку и, по возможности, thumbnail (если API вернёт)
+          const thumb = data.thumbnail_url || '';
+          mediaHtml = thumb
+            ? `<a href="${data.url}" target="_blank" rel="noopener"><img src="${thumb}" alt="Video thumbnail"></a>`
+            : `<p><a href="${data.url}" target="_blank" rel="noopener">Open video</a></p>`;
+        } else {
+          mediaHtml = `<p>No media available.</p>`;
+        }
+
+        el.innerHTML = `
+          <h2>${title}</h2>
+          <div class="meta">${date}</div>
+          ${mediaHtml}
+          <p>${explanation}</p>
+        `;
+      } catch (err) {
+        console.error(err);
+        el.innerHTML = `<p class="error">Failed to load data from API.</p>`;
+      }
+    }
+    loadAPOD();
+  </script>
 </body>
 </html>
+
