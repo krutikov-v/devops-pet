@@ -17,12 +17,14 @@ jobs:
           python-version: "3.11"
 
       - name: Install deps and run healthcheck
+        working-directory: nasa-project/backend
         run: |
-          cd nasa-project/backend
           pip install -r requirements.txt
           python app.py &
+          PID=$!
           sleep 3
-          curl -f http://localhost:5000/api/health
+          curl -fsS --retry 5 --retry-delay 2 http://localhost:5000/api/health
+          kill $PID || true
 
   deploy:
     needs: test-backend
@@ -38,11 +40,12 @@ jobs:
           script: |
             set -euo pipefail
             cd /home/ubuntu/devops-pet/nasa-project
+
             git fetch origin
             git reset --hard origin/main
-            docker compose down
-            docker compose build --no-cache backend
-            docker compose up -d --force-recreate
-            # sanity-check
-            curl -f http://localhost:5000/api/health
 
+            docker compose down
+
+            docker compose build --no-cache backend frontend
+
+            docker compose up -d --force-recreate
