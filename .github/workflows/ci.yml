@@ -40,4 +40,5 @@ jobs:
           script: |
             cd /home/ubuntu/devops-pet/nasa-project
             git pull
+            docker composr down
             docker compose up --build -d
