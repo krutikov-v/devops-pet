@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD to AWS
 
 on:
   push:
@@ -7,7 +7,6 @@ on:
 jobs:
   test-backend:
     runs-on: ubuntu-latest
-
     steps:
       - name: Клонировать репозиторий
         uses: actions/checkout@v3
@@ -17,18 +16,28 @@ jobs:
         with:
           python-version: 3.11
 
-      - name: Установить зависимости
+      - name: Установить зависимости backend
         run: |
           cd nasa-project/backend
           pip install -r requirements.txt
 
-      - name: Проверка запуска Flask-приложения
+      - name: Запустить backend и проверить healthcheck
         run: |
           python nasa-project/backend/app.py &
           sleep 3
-
-      - name: Проверка запуска Flask и ответа 
-        run: |
-          timeout 10s python nasa-project/backend/app.py &
-          sleep 3
           curl -f http://localhost:5000/api/health
+
+  deploy:
+    needs: test-backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ubuntu
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            cd nasa-project
+            git pull
+            docker compose up --build -d
