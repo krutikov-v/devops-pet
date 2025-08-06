@@ -8,22 +8,19 @@ jobs:
   test-backend:
     runs-on: ubuntu-latest
     steps:
-      - name: Клонировать репозиторий
-        uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Установить Python 3.11
-        uses: actions/setup-python@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: "3.11"
 
-      - name: Установить зависимости backend
+      - name: Install deps and run healthcheck
         run: |
           cd nasa-project/backend
           pip install -r requirements.txt
-
-      - name: Запустить backend и проверить healthcheck
-        run: |
-          python nasa-project/backend/app.py &
+          python app.py &
           sleep 3
           curl -f http://localhost:5000/api/health
 
@@ -32,13 +29,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to AWS EC2
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.AWS_HOST }}
           username: ubuntu
           key: ${{ secrets.AWS_SSH_KEY }}
+          script_stop: true
           script: |
+            set -euo pipefail
             cd /home/ubuntu/devops-pet/nasa-project
-            git pull
-            docker composr down
-            docker compose up --build -d
+            git fetch origin
+            git reset --hard origin/main
+            docker compose down
+            docker compose build --no-cache backend
+            docker compose up -d --force-recreate
+            # sanity-check
+            curl -f http://localhost:5000/api/health
+
